@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLASSIE Growth Audit Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Typography overrides */
+        body { font-family: 'Inter', sans-serif; background-color: #FAFAF9; color: #292524; }
+        h1, h2, h3, h4, h5 { font-family: 'Playfair Display', serif; }
+        
+        /* Chart Container Mandatory Styling */
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 700px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 350px; 
+            max-height: 450px; 
+        }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #A8A29E; }
+
+        /* Transitions & Animations */
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .nav-active { border-left: 4px solid #78716C; background-color: #F5F5F4; font-weight: 600; }
+        .accordion-content { display: none; overflow: hidden; }
+        .accordion-content.active { display: block; animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen overflow-hidden text-stone-800">
+
+    <!-- Chosen Palette: Warm Neutrals (Stone/Taupe) with Gold/Bronze accents. Professional, premium fashion aesthetic. -->
+    <!-- Application Structure Plan: A Dashboard/Hub architecture. Instead of reading a linear 20-page report, the founder can navigate through thematic sections (Overview, Metrics, Leaks, Competitors, Roadmap) via a persistent sidebar. This prioritizes task-oriented exploration—e.g., checking "Revenue Leaks" directly when planning development tasks, or reviewing "Scores" for an executive snapshot. Interactive accordions prevent information overload. -->
+    <!-- Visualization & Content Choices: 
+        1. Exec Scores -> Radar Chart (Chart.js) -> Hover interactions -> Instantly visualizes the imbalance between product strength and digital execution (NO SVG).
+        2. Competitors -> Interactive HTML Table -> Hover highlights -> Allows easy scanning of where CLASSIE wins/loses.
+        3. Revenue Leaks -> Accordion List -> Click to expand -> Groups complex problems/impacts into digestible chunks without cluttering the screen.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All icons are Unicode. -->
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-white border-r border-stone-200 flex-shrink-0 flex flex-col z-20 shadow-sm relative">
+        <div class="p-6 border-b border-stone-100">
+            <h1 class="text-2xl font-bold tracking-wider text-stone-900">CLASSIE</h1>
+            <p class="text-xs text-stone-500 uppercase tracking-widest mt-1">Growth Audit 2026</p>
+            <div class="mt-4 inline-block px-3 py-1 bg-stone-100 text-stone-600 text-xs rounded border border-stone-200">
+                &#9881; Prime8 Agency
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4 flex flex-row md:flex-col gap-1 overflow-x-auto px-4 md:px-0">
+            <button onclick="nav('overview')" id="nav-overview" class="nav-btn nav-active text-left px-6 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#128269; Executive Overview
+            </button>
+            <button onclick="nav('metrics')" id="nav-metrics" class="nav-btn text-left px-6 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#128202; Diagnostic Scores
+            </button>
+            <button onclick="nav('leaks')" id="nav-leaks" class="nav-btn text-left px-6 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#9888; Revenue & Funnel Leaks
+            </button>
+            <button onclick="nav('competitors')" id="nav-competitors" class="nav-btn text-left px-6 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#127937; Competitor Matrix
+            </button>
+            <button onclick="nav('roadmap')" id="nav-roadmap" class="nav-btn text-left px-6 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors whitespace-nowrap md:whitespace-normal">
+                &#128640; 90-Day Roadmap
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 bg-stone-50 overflow-y-auto p-4 md:p-10 relative">
+        
+        <!-- SECTION: OVERVIEW -->
+        <section id="sec-overview" class="content-section fade-in">
+            <header class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-semibold text-stone-900">Executive Overview & Business Model</h2>
+                <p class="text-stone-500 mt-2 text-sm leading-relaxed max-w-3xl">
+                    This section provides the foundational context of the audit. We analyze CLASSIE's unique structural architecture in the current market, identifying both the core competitive advantages and the critical adoption barriers that currently hinder scale.
+                </p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Model Card -->
+                <div class="bg-white p-6 rounded shadow-sm border border-stone-100">
+                    <h3 class="text-xl mb-3 flex items-center gap-2 font-semibold">
+                        <span class="text-xl">&#128188;</span> The "Razor & Blades" Model
+                    </h3>
+                    <p class="text-sm text-stone-600 mb-4 leading-relaxed">
+                        CLASSIE’s business model represents its most potent competitive advantage. By anchoring around high-quality base heels and interchangeable accessory clips, you theoretically neutralize wardrobe fatigue and cost-per-wear anxiety.
+                    </p>
+                    <div class="bg-stone-50 p-4 rounded text-sm text-stone-700 border-l-4 border-stone-400">
+                        <strong>The Paradox:</strong> The positioning bridges fast fashion and premium consumption brilliantly. However, current execution forces users into high-friction digital experiences that kill this advantage.
+                    </div>
+                </div>
+
+                <!-- Pain Points Addressed -->
+                <div class="bg-white p-6 rounded shadow-sm border border-stone-100">
+                    <h3 class="text-xl mb-3 flex items-center gap-2 font-semibold">
+                        <span class="text-xl">&#127919;</span> Trifecta of Solved Anxieties
+                    </h3>
+                    <ul class="space-y-4 text-sm text-stone-600">
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-600 font-bold">&#10003;</span>
+                            <div><strong>Economic Guilt:</strong> Reluctance to spend ₹3,000+ on single-use occasion shoes.</div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-600 font-bold">&#10003;</span>
+                            <div><strong>Wardrobe Clutter:</strong> Physical and mental clutter of identical base silhouettes.</div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-600 font-bold">&#10003;</span>
+                            <div><strong>Travel Friction:</strong> Logistical impossibility of packing multiple bulky heels.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-white p-6 rounded shadow-sm border border-stone-100">
+                <h3 class="text-xl mb-4 font-semibold">Brand vs. Execution Reality</h3>
+                <div class="flex flex-col md:flex-row gap-8 items-center">
+                    <div class="flex-1 text-center">
+                        <div class="text-4xl font-bold text-stone-800 mb-2">85<span class="text-xl text-stone-400">/100</span></div>
+                        <div class="text-sm uppercase tracking-wider text-stone-500">Product Positioning</div>
+                    </div>
+                    <div class="text-2xl text-stone-300 hidden md:block">&#10142;</div>
+                    <div class="flex-1 text-center">
+                        <div class="text-4xl font-bold text-red-600 mb-2">40<span class="text-xl text-stone-400">/100</span></div>
+                        <div class="text-sm uppercase tracking-wider text-stone-500">Paid Ads Readiness</div>
+                    </div>
+                </div>
+                <p class="text-center text-sm text-stone-500 mt-4 max-w-2xl mx-auto">
+                    A formidable core product concept is currently undermined by critical execution gaps in digital merchandising, post-click UX, and organic community cultivation. Deploying ad capital now will yield suboptimal ROAS.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION: METRICS -->
+        <section id="sec-metrics" class="content-section hidden">
+            <header class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-semibold text-stone-900">Diagnostic Brand Scores</h2>
+                <p class="text-stone-500 mt-2 text-sm leading-relaxed max-w-3xl">
+                    This interactive radar visualization maps CLASSIE's operational maturity against top-tier Indian D2C benchmarks. Hover over individual data points to reveal the diagnostic rationale for each specific score.
+                </p>
+            </header>
+
+            <div class="bg-white p-6 rounded shadow-sm border border-stone-100 flex flex-col md:flex-row gap-8 items-center">
+                
+                <div class="flex-1 w-full">
+                    <!-- MANDATORY CHART CONTAINER -->
+                    <div class="chart-container">
+                        <canvas id="scoresChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="flex-1 w-full">
+                    <h3 class="text-xl mb-4 font-semibold font-playfair border-b border-stone-100 pb-2">Analysis Snapshot</h3>
+                    <div id="chart-insight" class="bg-stone-50 p-5 rounded border border-stone-200 min-h-[150px] flex items-center text-sm text-stone-700 leading-relaxed shadow-inner">
+                        Hover over any point on the radar chart to view the specific strategic context and rationale behind the diagnostic score.
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-4">
+                        <div class="bg-stone-50 p-3 rounded text-center border border-stone-200">
+                            <div class="text-xs text-stone-500 uppercase tracking-widest mb-1">Overall Score</div>
+                            <div class="text-2xl font-bold text-stone-800">62/100</div>
+                        </div>
+                        <div class="bg-stone-50 p-3 rounded text-center border border-stone-200">
+                            <div class="text-xs text-stone-500 uppercase tracking-widest mb-1">Retention Potential</div>
+                            <div class="text-2xl font-bold text-green-700">70/100</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION: LEAKS -->
+        <section id="sec-leaks" class="content-section hidden">
+            <header class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-semibold text-stone-900">Revenue & Funnel Leaks</h2>
+                <p class="text-stone-500 mt-2 text-sm leading-relaxed max-w-3xl">
+                    These are the critical friction points actively losing the brand sales. Click on any identified issue to expand and understand its impact, severity, and the specific opportunity loss it represents.
+                </p>
+            </header>
+
+            <div class="mb-6 flex gap-2">
+                <button onclick="filterLeaks('all')" class="px-4 py-1 text-xs font-semibold rounded bg-stone-800 text-white">All Leaks</button>
+                <button onclick="filterLeaks('Critical')" class="px-4 py-1 text-xs font-semibold rounded bg-red-100 text-red-800 border border-red-200">Critical Only</button>
+            </div>
+
+            <div id="leaks-container" class="space-y-3">
+                <!-- Populated by JS -->
+            </div>
+            
+            <div class="mt-10 bg-yellow-50 border border-yellow-200 p-6 rounded shadow-sm">
+                <h3 class="text-lg font-semibold text-yellow-900 flex items-center gap-2 mb-2">
+                    <span>&#9888;</span> Digital Merchandising Warning
+                </h3>
+                <p class="text-sm text-yellow-800 leading-relaxed">
+                    The total absence of embedded video on the Product Pages (PDP) is the largest single conversion killer. Users cannot effectively visualize the clipping mechanism from static catalog imagery. Macro video shots explicitly demonstrating the safety of the clasp are mandatory before scaling paid traffic.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION: COMPETITORS -->
+        <section id="sec-competitors" class="content-section hidden">
+            <header class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-semibold text-stone-900">Competitor Matrix</h2>
+                <p class="text-stone-500 mt-2 text-sm leading-relaxed max-w-3xl">
+                    A comparative analysis of CLASSIE against key players in the premium and functional footwear space. This table highlights where CLASSIE possesses an inherent advantage and where it is currently being outmaneuvered.
+                </p>
+            </header>
+
+            <div class="overflow-x-auto bg-white rounded shadow-sm border border-stone-200">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-stone-100 border-b border-stone-200 text-stone-700">
+                            <th class="p-4 font-semibold uppercase tracking-wider text-xs">Brand</th>
+                            <th class="p-4 font-semibold uppercase tracking-wider text-xs">Core Proposition</th>
+                            <th class="p-4 font-semibold uppercase tracking-wider text-xs">Price (INR)</th>
+                            <th class="p-4 font-semibold uppercase tracking-wider text-xs">Key Strengths</th>
+                            <th class="p-4 font-semibold uppercase tracking-wider text-xs">Critical Weaknesses</th>
+                        </tr>
+                    </thead>
+                    <tbody id="competitor-body" class="text-stone-700">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION: ROADMAP -->
+        <section id="sec-roadmap" class="content-section hidden">
+            <header class="mb-8 border-b border-stone-200 pb-4">
+                <h2 class="text-3xl font-semibold text-stone-900">90-Day Growth Plan & Recommendations</h2>
+                <p class="text-stone-500 mt-2 text-sm leading-relaxed max-w-3xl">
+                    Strategic action items phased over the next 90 days. This plan transitions CLASSIE from a static catalog to a dynamic, creator-led e-commerce engine ready for performance marketing scale.
+                </p>
+            </header>
+
+            <h3 class="text-xl font-semibold mb-4 text-stone-800">Immediate Quick Wins (Next 30 Days)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                <div class="flex items-start gap-3 bg-white p-4 rounded border border-stone-200 shadow-sm">
+                    <div class="text-xl mt-1 text-green-600">&#10146;</div>
+                    <div>
+                        <h4 class="font-semibold text-stone-900">Install Native Bundling App</h4>
+                        <p class="text-xs text-stone-500 mt-1">Allow single-click additions of matched clips directly on the base heel product page to reduce navigation friction.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 bg-white p-4 rounded border border-stone-200 shadow-sm">
+                    <div class="text-xl mt-1 text-green-600">&#10146;</div>
+                    <div>
+                        <h4 class="font-semibold text-stone-900">Algorithmic Cart Upsells</h4>
+                        <p class="text-xs text-stone-500 mt-1">Implement a dynamic drawer cart offering ₹399 clips, leveraging the ₹999 free shipping threshold as an incentive.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 bg-white p-4 rounded border border-stone-200 shadow-sm">
+                    <div class="text-xl mt-1 text-green-600">&#10146;</div>
+                    <div>
+                        <h4 class="font-semibold text-stone-900">PDP Objection FAQs</h4>
+                        <p class="text-xs text-stone-500 mt-1">Create dedicated, visible accordions addressing the "Will it damage the shoe?" and "Is it secure?" fears.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 bg-white p-4 rounded border border-stone-200 shadow-sm">
+                    <div class="text-xl mt-1 text-green-600">&#10146;</div>
+                    <div>
+                        <h4 class="font-semibold text-stone-900">Instagram Profile Overhaul</h4>
+                        <p class="text-xs text-stone-500 mt-1">Rewrite bio for clarity, establish specific highlight covers (How it Works, Reviews), and deploy a Linktree.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-4 text-stone-800 border-t border-stone-200 pt-6">Prime8 Agency Scale Targets</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-stone-800 text-white p-5 rounded shadow">
+                    <div class="text-sm uppercase tracking-wider text-stone-400 mb-2">UGC Volume</div>
+                    <div class="text-2xl font-bold mb-1">15-20 / mo</div>
+                    <div class="text-xs text-stone-300 leading-relaxed">Raw assets needed to prevent ad fatigue and demonstrate diverse environments.</div>
+                </div>
+                <div class="bg-stone-800 text-white p-5 rounded shadow">
+                    <div class="text-sm uppercase tracking-wider text-stone-400 mb-2">Creator Mix</div>
+                    <div class="text-2xl font-bold mb-1">15 + 3</div>
+                    <div class="text-xs text-stone-300 leading-relaxed">15 Nano-creators (Barter) + 3 Micro-creators (Paid) to balance asset generation and reach.</div>
+                </div>
+                <div class="bg-stone-800 text-white p-5 rounded shadow">
+                    <div class="text-sm uppercase tracking-wider text-stone-400 mb-2">Content Output</div>
+                    <div class="text-2xl font-bold mb-1">16 Reels / mo</div>
+                    <div class="text-xs text-stone-300 leading-relaxed">Plus 30 Stories monthly. Transitioning to a dynamic visual catalog of transformations.</div>
+                </div>
+                <div class="bg-stone-800 text-white p-5 rounded shadow">
+                    <div class="text-sm uppercase tracking-wider text-stone-400 mb-2">Meta Ads Mix</div>
+                    <div class="text-2xl font-bold mb-1">70/30 Split</div>
+                    <div class="text-xs text-stone-300 leading-relaxed">70% Broad Targeting/ASC for Prospecting, 30% Retargeting via Catalog Sales & Founder Story.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function nav(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('fade-in');
+            });
+            // Remove active state from nav buttons
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('nav-active'));
+            
+            // Show target section
+            const target = document.getElementById(`sec-${sectionId}`);
+            target.classList.remove('hidden');
+            target.classList.add('fade-in');
+            
+            // Set active state
+            document.getElementById(`nav-${sectionId}`).classList.add('nav-active');
+
+            // Render chart if metrics section is opened and chart isn't rendered yet
+            if(sectionId === 'metrics' && !window.chartRendered) {
+                renderRadarChart();
+                window.chartRendered = true;
+            }
+        }
+
+        // --- Data: Diagnostic Scores ---
+        const scoreData = [
+            { label: 'Website', score: 55, rationale: 'Current storefront operates as a static digital catalog. Native product bundling is completely absent.' },
+            { label: 'Instagram', score: 45, rationale: 'Visual identity heavily over-indexes on static product imagery. Fails to leverage dynamic demonstration (Reels).' },
+            { label: 'Branding', score: 68, rationale: 'Nomenclature projects accessible elegance. However, functionally anonymous; lacks a compelling founder narrative.' },
+            { label: 'Product Positioning', score: 85, rationale: 'Exceptional. Effectively bridges the gap between fast fashion and the demand for versatile consumption.' },
+            { label: 'Creator Marketing', score: 30, rationale: 'Minimal to non-existent footprint within the modern creator economy, a severe vulnerability.' },
+            { label: 'Conversion', score: 50, rationale: 'Velocity is severely hindered by lack of social proof and absence of intelligent in-cart upsells.' },
+            { label: 'Retention', score: 70, rationale: 'The inherent razor-and-blades architecture practically guarantees higher-than-average retention metrics.' },
+            { label: 'Paid Ads Readiness', score: 40, rationale: 'Deploying capital now yields suboptimal ROAS due to lacking trust signals and high-friction checkouts.' }
+        ];
+
+        // --- Data: Revenue Leaks ---
+        const leaksData = [
+            { id: 1, issue: "No Native Product Bundling", impact: "Users must manually navigate multiple pages.", severity: "Critical", opportunity: "30-40% drop in CVR" },
+            { id: 2, issue: "Hidden In-Cart Upsells", impact: "Failure to offer complementary clips algorithmically.", severity: "Critical", opportunity: "Loss of ₹400-₹800 per AOV" },
+            { id: 3, issue: "Lack of Video on PDP", impact: "Users cannot effectively visualize the clipping mechanism.", severity: "High", opportunity: "15-20% drop in ATC" },
+            { id: 4, issue: "Sparse Social Proof", impact: "Only 1-3 text reviews visible on flagship products.", severity: "High", opportunity: "Kills cold-traffic trust" },
+            { id: 5, issue: "Zero Post-Purchase Flows", impact: "No automated emails offering clip discounts 14 days later.", severity: "High", opportunity: "20-30% of LTV uncaptured" }
+        ];
+
+        // --- Data: Competitors ---
+        const competitorsData = [
+            { brand: "CLASSIE", prop: "Interchangeable Clips", price: "₹1,599 - 1,799", strengths: "Perfect price-to-value ratio, aesthetic appeal.", weaknesses: "High UX friction, weak social proof.", isBrand: true },
+            { brand: "Soule", prop: "Interchangeable Soles", price: "₹2,299 - 2,749", strengths: "Patented snap durability, comfort messaging.", weaknesses: "Complex mechanical system, higher barrier.", isBrand: false },
+            { brand: "Vice Versa", prop: "Convertible Heel Height", price: "₹4,000+", strengths: "Solves physical pain of high heels.", weaknesses: "Limited aesthetic customization post-purchase.", isBrand: false },
+            { brand: "Fizzy Goblet", prop: "Handcrafted Heritage", price: "₹5,990 - 8,990", strengths: "Massive brand equity, celeb collabs.", weaknesses: "High price point, rigid single-use designs.", isBrand: false }
+        ];
+
+        // --- Render Radar Chart ---
+        function renderRadarChart() {
+            const ctx = document.getElementById('scoresChart').getContext('2d');
+            
+            const labels = scoreData.map(d => d.label);
+            const dataPts = scoreData.map(d => d.score);
+            
+            // Baseline ideal score for comparison
+            const baseline = [85, 85, 85, 85, 85, 85, 85, 85];
+
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'CLASSIE Current Score',
+                            data: dataPts,
+                            backgroundColor: 'rgba(140, 122, 107, 0.3)', // Muted Taupe
+                            borderColor: 'rgba(140, 122, 107, 1)',
+                            pointBackgroundColor: 'rgba(140, 122, 107, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(140, 122, 107, 1)',
+                            borderWidth: 2,
+                        },
+                        {
+                            label: 'D2C Benchmark (Ideal)',
+                            data: baseline,
+                            backgroundColor: 'rgba(214, 211, 209, 0.1)',
+                            borderColor: 'rgba(214, 211, 209, 0.8)',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            borderWidth: 1,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Critical for CSS container sizing
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.05)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            pointLabels: {
+                                font: { family: 'Inter', size: 12 },
+                                color: '#57534E'
+                            },
+                            ticks: { min: 0, max: 100, stepSize: 20, display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Inter'} } },
+                        tooltip: {
+                            backgroundColor: 'rgba(41, 37, 36, 0.9)',
+                            titleFont: { family: 'Inter', size: 14 },
+                            bodyFont: { family: 'Inter', size: 13 },
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Score: ${context.raw}/100`;
+                                }
+                            }
+                        }
+                    },
+                    onHover: (event, chartElement) => {
+                        event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                        if (chartElement.length && chartElement[0].datasetIndex === 0) {
+                            const index = chartElement[0].index;
+                            const insightText = `<strong>${scoreData[index].label}:</strong> ${scoreData[index].rationale}`;
+                            document.getElementById('chart-insight').innerHTML = insightText;
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Render Leaks Accordion ---
+        function renderLeaks(filter = 'all') {
+            const container = document.getElementById('leaks-container');
+            container.innerHTML = '';
+            
+            const filteredData = filter === 'all' ? leaksData : leaksData.filter(d => d.severity === filter);
+            
+            filteredData.forEach(leak => {
+                const isCritical = leak.severity === 'Critical';
+                const badgeColor = isCritical ? 'bg-red-100 text-red-800 border-red-200' : 'bg-orange-100 text-orange-800 border-orange-200';
+                
+                const html = `
+                    <div class="border border-stone-200 rounded bg-white shadow-sm overflow-hidden">
+                        <button onclick="toggleAccordion('leak-${leak.id}')" class="w-full text-left p-4 hover:bg-stone-50 transition-colors flex justify-between items-center focus:outline-none">
+                            <div class="flex items-center gap-3">
+                                <span class="px-2 py-0.5 text-xs rounded border font-semibold ${badgeColor}">${leak.severity}</span>
+                                <span class="font-semibold text-stone-800">${leak.id}. ${leak.issue}</span>
+                            </div>
+                            <span class="text-stone-400" id="icon-leak-${leak.id}">&#9660;</span>
+                        </button>
+                        <div id="leak-${leak.id}" class="accordion-content bg-stone-50 border-t border-stone-100 p-4 text-sm text-stone-600">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <strong class="text-stone-800 block mb-1">Impact Description:</strong>
+                                    ${leak.impact}
+                                </div>
+                                <div>
+                                    <strong class="text-stone-800 block mb-1">Estimated Opportunity Loss:</strong>
+                                    <span class="text-red-600 font-medium">${leak.opportunity}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function filterLeaks(filter) {
+            renderLeaks(filter);
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(`icon-${id}`);
+            
+            // Close others (optional, but keeps it clean)
+            document.querySelectorAll('.accordion-content').forEach(el => {
+                if (el.id !== id && el.classList.contains('active')) {
+                    el.classList.remove('active');
+                    document.getElementById(`icon-${el.id}`).innerHTML = '&#9660;';
+                }
+            });
+
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.innerHTML = '&#9660;'; // Down arrow
+            } else {
+                content.classList.add('active');
+                icon.innerHTML = '&#9650;'; // Up arrow
+            }
+        }
+
+        // --- Render Competitors Table ---
+        function renderCompetitors() {
+            const tbody = document.getElementById('competitor-body');
+            let html = '';
+            
+            competitorsData.forEach(comp => {
+                const rowClass = comp.isBrand ? "bg-stone-50 border-l-4 border-stone-800" : "border-b border-stone-100 hover:bg-stone-50 transition-colors";
+                const nameStyling = comp.isBrand ? "font-bold text-stone-900" : "font-medium text-stone-800";
+                
+                html += `
+                    <tr class="${rowClass}">
+                        <td class="p-4 ${nameStyling}">${comp.brand} ${comp.isBrand ? ' (You)' : ''}</td>
+                        <td class="p-4">${comp.prop}</td>
+                        <td class="p-4">${comp.price}</td>
+                        <td class="p-4 text-green-700">${comp.strengths}</td>
+                        <td class="p-4 text-red-600">${comp.weaknesses}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // --- Gemini API Logic (AI Action Hub) ---
+        const apiKey = ""; 
+
+        async function fetchGemini(prompt, systemInstruction = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+            };
+            if (systemInstruction) {
+                 payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+            }
+
+            let retries = 5;
+            let delay = 1000;
+            for (let i = 0; i <= retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+                } catch (e) {
+                    if (i === retries) {
+                        return "<span class='text-red-600'>Error: Could not generate content after multiple attempts. Please try again later.</span>";
+                    }
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function generateAsset(type) {
+            const outputDiv = document.getElementById('ai-output-content');
+            const loadingDiv = document.getElementById('ai-loading');
+            const defaultState = document.getElementById('ai-default-state');
+
+            // UI State updates
+            if (defaultState) defaultState.classList.add('hidden');
+            outputDiv.innerHTML = '';
+            loadingDiv.classList.remove('hidden');
+
+            // Feed the LLM the context of the audit
+            const systemPrompt = "You are a Senior D2C Growth Consultant helping the brand CLASSIE. They sell high-quality base heels (INR 1599) and interchangeable accessory clips to change the look of the shoe. It solves wardrobe clutter, high cost-per-wear, and travel friction. Your tone is professional, direct, and persuasive.";
+            let userPrompt = "";
+
+            if (type === 'ad') {
+                userPrompt = "Generate 3 distinct Meta Ad copy variations (Primary Text, Headline, Description). Angle 1: Focus on the 'Razor and Blades' model (saving money vs buying multiple heels). Angle 2: Focus on travel friction (packing light). Angle 3: Focus on occasion versatility (desk to dinner).";
+            } else if (type === 'dm') {
+                userPrompt = "Write a short, engaging Instagram DM pitch to a nano-creator (fashion influencer) offering a barter collaboration: we send them 1 base heel and 2 clips in exchange for 1 Reel demonstrating how easily the clips snap on and transform the look.";
+            } else if (type === 'bio') {
+                userPrompt = "Write 3 options for an optimized, high-converting Instagram Bio for CLASSIE. Include a strong hook, the main value proposition (One Heel, Endless Looks), and a strong Call to Action to shop the new collection.";
+            } else if (type === 'faq') {
+                userPrompt = "Draft short, reassuring FAQ answers for the product page addressing the two biggest customer objections: 1. Will the metal clasp damage or scratch the base shoe? 2. Will the clip fall off while walking or dancing?";
+            }
+
+            const resultText = await fetchGemini(userPrompt, systemPrompt);
+            
+            // Basic markdown to HTML formatting for the output
+            let formattedText = resultText
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-stone-900">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+            
+            outputDiv.innerHTML = formattedText;
+            loadingDiv.classList.add('hidden');
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLeaks('all');
+            renderCompetitors();
+        });
+
+    </script>
+</body>
+</html>
